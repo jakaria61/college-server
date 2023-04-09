@@ -18,19 +18,15 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run(){
     try{
         const studentCollection=client.db('college').collection('registration');
+
         app.post('/registration',async(req,res)=>{
-            const name = req.body.name;
-            const email = req.body.email;
-            const password = req.body.password;
+            const studentInfo = req.body;
             const hashPass = await bcrypt.hash(req.body.password, 10);
-            const user = {
-                name: name,
-                email: email,
-                password: hashPass 
-              };
-              const result=await studentCollection.insertOne(user)
-              res.send(result)
+            studentInfo.password = hashPass;
+            const result=await studentCollection.insertOne(studentInfo)
+            res.send(result);
         });
+
         app.post('/login',async(req,res)=>{
             const email = req.body.email;
             const password = req.body.password;
@@ -44,7 +40,7 @@ async function run(){
         
                   if (result === true) {
                   //  req.session.user = user;
-                    res.send(user);
+                    res.send(result);
                   } else {
                     res.status(401).send('Invalid email or password');
                   }
