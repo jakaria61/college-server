@@ -57,7 +57,20 @@ async function run(){
               throw err;
             }
         });
-
+        app.get('/student-info', async(req, res)=>{
+          try{
+            const token = req.headers.authorization;
+            const data = jwt.verify(token, process.env.JWT_KEY);
+            if(data.data.email){
+              const user=await studentCollection.findOne({email:data.data.email})
+              res.send(user);
+            }
+            res.send({message: "Data not found"});
+          }
+          catch(err){
+            //throw err;
+          }
+        })
        
 
     }
