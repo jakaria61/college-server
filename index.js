@@ -20,32 +20,42 @@ async function run(){
         const studentCollection=client.db('college').collection('registration');
 
         app.post('/registration',async(req,res)=>{
-            const studentInfo = req.body;
-            const hashPass = await bcrypt.hash(req.body.password, 10);
-            studentInfo.password = hashPass;
-            const result=await studentCollection.insertOne(studentInfo)
-            res.send(result);
+            try{
+              const studentInfo = req.body;
+              const hashPass = await bcrypt.hash(req.body.password, 10);
+              studentInfo.password = hashPass;
+              const result=await studentCollection.insertOne(studentInfo)
+              res.send(result);
+            }
+            catch(err){
+              throw err;
+            }
         });
 
         app.post('/login',async(req,res)=>{
-            const email = req.body.email;
-            const password = req.body.password;
-            const user=await studentCollection.findOne({email:email})
-            if (!user) {
-                res.status(401).send('Invalid email or password');
-              } 
-              else {
-                bcrypt.compare(password, user.password, function(err, result) {
-                  if (err) throw err;
-        
-                  if (result === true) {
-                  //  req.session.user = user;
-                    res.send(result);
-                  } else {
-                    res.status(401).send('Invalid email or password');
-                  }
-                
-                });
+            try{
+              const email = req.body.email;
+              const password = req.body.password;
+              const user=await studentCollection.findOne({email:email})
+              if (!user) {
+                  res.status(401).send('Invalid email or password');
+                } 
+                else {
+                  bcrypt.compare(password, user.password, function(err, result) {
+                    if (err) throw err;
+          
+                    if (result === true) {
+                      const studentInfo = studentCollection.findOne({email: email});
+                      res.send(studentInfo);
+                    } else {
+                      res.status(401).send('Invalid email or password');
+                    }
+                  
+                  });
+              }
+            }
+            catch(err){
+              throw err;
             }
         });
 
