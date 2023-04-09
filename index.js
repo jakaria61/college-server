@@ -45,12 +45,11 @@ async function run(){
                     if (err) throw err;
           
                     if (result === true) {
-                      const studentInfo = studentCollection.findOne({email: email});
-                      res.send(studentInfo);
+                      const token = jwt.sign({data: {email: user.email, id: user._id}}, process.env.JWT_KEY, {expiresIn: '12h'});
+                      res.send({token});
                     } else {
                       res.status(401).send('Invalid email or password');
                     }
-                  
                   });
               }
             }
